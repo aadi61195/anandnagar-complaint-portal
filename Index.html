@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anandnagar ULB Complaint Portal Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#17202a}
+header{background:#123b63;color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{font-size:20px;font-weight:700}.sub{font-size:12px;opacity:.85;margin-top:3px}
+button,select,input,textarea{font:inherit}button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600}
+.lang{background:#fff;color:#123b63}.layout{display:flex;min-height:calc(100vh - 72px)}
+nav{width:220px;background:#fff;border-right:1px solid #ddd;padding:15px}.navbtn{width:100%;text-align:left;background:transparent;margin:3px 0}.navbtn.active,.navbtn:hover{background:#e9f1f8;color:#123b63}
+main{flex:1;padding:22px;max-width:1300px;margin:auto;width:100%}
+h1{margin:0 0 5px;font-size:26px}.muted{color:#667085}.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0}.card{background:#fff;border:1px solid #e2e6ea;border-radius:12px;padding:16px}.num{font-size:28px;font-weight:800;margin-top:7px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:#fff;border:1px solid #e2e6ea;border-radius:12px;padding:18px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1px solid #eee;text-align:left;font-size:14px}th{background:#f7f8fa}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.new{background:#e8f1ff;color:#185abc}.assigned{background:#fff2cc;color:#8a5b00}.progress{background:#e9f7ef;color:#137333}.resolved{background:#e6f4ea;color:#137333}.overdue{background:#fde8e8;color:#b42318}
+.form{max-width:760px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{margin-bottom:15px}label{display:block;font-weight:700;margin-bottom:6px}input,select,textarea{width:100%;border:1px solid #cfd6dd;border-radius:8px;padding:11px;background:#fff}textarea{min-height:120px;resize:vertical}.primary{background:#123b63;color:white}.secondary{background:#e9f1f8;color:#123b63}.danger{background:#b42318;color:#fff}
+.typegrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:18px 0}.type{padding:24px;border:2px solid #d9e0e7;border-radius:12px;background:#fff;text-align:center;font-size:18px}.type.selected{border-color:#123b63;background:#eef5fb}
+.notice{padding:14px;border-radius:9px;background:#eef7ff;border:1px solid #cfe4f8;margin-bottom:15px}.success{background:#eaf7ef;border-color:#c8ead4}
+.hidden{display:none}.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.grid2,.row{grid-template-columns:1fr}nav{width:170px}.typegrid{grid-template-columns:1fr}}
+@media(max-width:600px){.layout{display:block}nav{width:100%;display:flex;overflow:auto;gap:5px}.navbtn{white-space:nowrap;width:auto}.cards{grid-template-columns:1fr 1fr}main{padding:14px}}
+</style>
+</head>
+<body>
+<header>
+<div><div class="brand" id="brand">नगर पंचायत आनंदनगर — नागरिक शिकायत पोर्टल</div><div class="sub">Nagar Panchayat Anandnagar · Maharajganj, Uttar Pradesh</div></div>
+<button class="lang" onclick="toggleLang()" id="langBtn">English</button>
+</header>
+<div class="layout">
+<nav>
+<button class="navbtn active" onclick="show('citizen',this)" id="n1">👤 नागरिक पोर्टल</button>
+<button class="navbtn" onclick="show('dashboard',this)" id="n2">📊 EO Dashboard</button>
+<button class="navbtn" onclick="show('staff',this)" id="n3">👷 Staff Portal</button>
+</nav>
+<main>
+<section id="citizen">
+<div class="topline"><div><h1 id="citTitle">शिकायत दर्ज करें</h1><div class="muted" id="citSub">अपनी समस्या की श्रेणी चुनें और विवरण भरें।</div></div></div>
+<div id="successBox" class="notice success hidden"></div>
+<div class="panel form">
+<div class="field"><label id="typeLabel">शिकायत का प्रकार *</label>
+<div class="typegrid">
+<button class="type" id="streetType" onclick="pickType('Street Light')">💡 <span id="streetText">स्ट्रीट लाइट</span></button>
+<button class="type" id="sanType" onclick="pickType('Sanitation')">🧹 <span id="sanText">स्वच्छता</span></button>
+</div></div>
+<form onsubmit="submitComplaint(event)">
+<div class="row">
+<div class="field"><label id="nameLabel">शिकायतकर्ता का नाम *</label><input id="name" required></div>
+<div class="field"><label id="mobileLabel">मोबाइल नंबर *</label><input id="mobile" pattern="[0-9]{10}" maxlength="10" required></div>
+</div>
+<div class="field"><label id="wardLabel">वार्ड संख्या *</label><select id="ward" required><option value="">वार्ड चुनें</option></select></div>
+<div class="field"><label id="descLabel">समस्या का विवरण *</label><textarea id="desc" required></textarea></div>
+<div class="field"><label id="photoLabel">फोटो अपलोड करें (वैकल्पिक)</label><input id="photo" type="file" accept="image/*"></div>
+<button class="primary" type="submit" id="submitBtn">शिकायत दर्ज करें</button>
+</form>
+</div>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="topline"><div><h1 id="dashTitle">EO Dashboard</h1><div class="muted">Complaint Management & Progress Monitoring</div></div>
+<div class="actions"><button class="secondary" onclick="printAssignment()">🖨️ <span id="pdfBtn">Assignment Receipt / PDF</span></button></div></div>
+<div class="cards" id="stats"></div>
+<div class="panel">
+<div class="topline"><h2 id="complaintHeading">Complaints</h2><div class="actions"><select id="filterType" onchange="renderDashboard()"><option value="All">All</option><option value="Street Light">Street Light</option><option value="Sanitation">Sanitation</option></select><select id="filterWard" onchange="renderDashboard()"></select><select id="filterStatus" onchange="renderDashboard()"><option value="All">All Status</option><option>New</option><option>Assigned</option><option>In Progress</option><option>Resolved</option><option>Overdue</option></select></div></div>
+<table><thead><tr><th>ID</th><th>Type</th><th>Ward</th><th>Complainant</th><th>Status</th><th>Deadline</th><th>Action</th></tr></thead><tbody id="complaintRows"></tbody></table>
+</div>
+<div class="panel"><h2 id="wardHeading">18-Ward Monitoring</h2><table><thead><tr><th>Ward</th><th>Total</th><th>Street Light</th><th>Sanitation</th><th>Pending</th><th>Resolved</th><th>Overdue</th></tr></thead><tbody id="wardRows"></tbody></table></div>
+<div class="panel hidden" id="detailPanel"></div>
+</section>
+
+<section id="staff" class="hidden">
+<div class="topline"><div><h1>👷 <span id="staffTitle">Field Staff Portal</span></h1><div class="muted">Assigned work and resolution updates</div></div></div>
+<div class="panel"><h2 id="myWork">My Assigned Complaints</h2><table><thead><tr><th>ID</th><th>Type</th><th>Ward</th><th>Problem</th><th>Deadline</th><th>Status</th><th>Action</th></tr></thead><tbody id="staffRows"></tbody></table></div>
+</section>
+</main></div>
+
+<script>
+let lang='hi', selectedType='', selectedId=null;
+let complaints=[
+{id:'ANP-2026-00127',type:'Street Light',name:'Rajesh Kumar',mobile:'9876543227',ward:'04',desc:'Primary school के पास street light काम नहीं कर रही है।',status:'Assigned',deadline:'25/09/2026',staff:'Rakesh Kumar',created:'23/09/2026 10:32 AM'},
+{id:'ANP-2026-00128',type:'Sanitation',name:'Sunita Devi',mobile:'9876543218',ward:'07',desc:'मुख्य सड़क के किनारे कूड़ा कई दिनों से नहीं उठाया गया है।',status:'New',deadline:'',staff:'',created:'23/09/2026 11:10 AM'},
+{id:'ANP-2026-00129',type:'Street Light',name:'Amit Singh',mobile:'9876543219',ward:'02',desc:'मोहल्ले की स्ट्रीट लाइट खराब है।',status:'In Progress',deadline:'24/09/2026',staff:'Suresh',created:'22/09/2026 04:20 PM'},
+{id:'ANP-2026-00130',type:'Sanitation',name:'Meena Devi',mobile:'9876543220',ward:'05',desc:'नाली की सफाई की आवश्यकता है।',status:'Resolved',deadline:'23/09/2026',staff:'Mohan',created:'21/09/2026 09:15 AM'},
+{id:'ANP-2026-00131',type:'Sanitation',name:'Ravi Kumar',mobile:'9876543221',ward:'11',desc:'कूड़ा संग्रहण वाहन नियमित रूप से नहीं आ रहा है।',status:'Overdue',deadline:'21/09/2026',staff:'Vijay',created:'19/09/2026 01:05 PM'}
+];
+for(let i=1;i<=18;i++){let o=document.createElement('option');o.value=String(i).padStart(2,'0');o.textContent='Ward '+String(i).padStart(2,'0');document.getElementById('ward').appendChild(o)}
+function initFilters(){let f=document.getElementById('filterWard');f.innerHTML='<option value="All">All Wards</option>';for(let i=1;i<=18;i++){let o=document.createElement('option');o.value=String(i).padStart(2,'0');o.textContent='Ward '+String(i).padStart(2,'0');f.appendChild(o)}}
+function toggleLang(){lang=lang==='hi'?'en':'hi';document.getElementById('langBtn').textContent=lang==='hi'?'English':'हिंदी';document.getElementById('brand').textContent=lang==='hi'?'नगर पंचायत आनंदनगर — नागरिक शिकायत पोर्टल':'Nagar Panchayat Anandnagar — Citizen Complaint Portal';document.getElementById('citTitle').textContent=lang==='hi'?'शिकायत दर्ज करें':'Register Complaint';document.getElementById('citSub').textContent=lang==='hi'?'अपनी समस्या की श्रेणी चुनें और विवरण भरें।':'Select your problem category and fill in the details.';document.getElementById('typeLabel').textContent=lang==='hi'?'शिकायत का प्रकार *':'Complaint Type *';document.getElementById('streetText').textContent=lang==='hi'?'स्ट्रीट लाइट':'Street Light';document.getElementById('sanText').textContent=lang==='hi'?'स्वच्छता':'Sanitation';document.getElementById('nameLabel').textContent=lang==='hi'?'शिकायतकर्ता का नाम *':'Complainant Name *';document.getElementById('mobileLabel').textContent=lang==='hi'?'मोबाइल नंबर *':'Mobile Number *';document.getElementById('wardLabel').textContent=lang==='hi'?'वार्ड संख्या *':'Ward Number *';document.getElementById('descLabel').textContent=lang==='hi'?'समस्या का विवरण *':'Problem Description *';document.getElementById('photoLabel').textContent=lang==='hi'?'फोटो अपलोड करें (वैकल्पिक)':'Upload Photo (Optional)';document.getElementById('submitBtn').textContent=lang==='hi'?'शिकायत दर्ज करें':'Submit Complaint';document.getElementById('n1').textContent=lang==='hi'?'👤 नागरिक पोर्टल':'👤 Citizen Portal';document.getElementById('n2').textContent=lang==='hi'?'📊 EO Dashboard':'📊 EO Dashboard';document.getElementById('n3').textContent=lang==='hi'?'👷 कर्मचारी पोर्टल':'👷 Staff Portal'}
+function pickType(t){selectedType=t;document.getElementById('streetType').classList.toggle('selected',t==='Street Light');document.getElementById('sanType').classList.toggle('selected',t==='Sanitation')}
+function submitComplaint(e){e.preventDefault();if(!selectedType){alert(lang==='hi'?'कृपया शिकायत का प्रकार चुनें।':'Please select a complaint type.');return}let n=complaints.length+132;let c={id:'ANP-2026-'+String(n).padStart(5,'0'),type:selectedType,name:document.getElementById('name').value,mobile:document.getElementById('mobile').value,ward:document.getElementById('ward').value,desc:document.getElementById('desc').value,status:'New',deadline:'',staff:'',created:new Date().toLocaleString('en-IN')};complaints.unshift(c);selectedId=c.id;let b=document.getElementById('successBox');b.classList.remove('hidden');b.innerHTML=(lang==='hi'?'<b>✅ शिकायत सफलतापूर्वक दर्ज हुई</b><br>आपकी शिकायत संख्या: <b>':'<b>✅ Complaint registered successfully</b><br>Your Complaint ID: <b>')+c.id+'</b>';document.querySelector('#citizen form').reset();selectedType='';document.querySelectorAll('.type').forEach(x=>x.classList.remove('selected'));renderDashboard()}
+function show(id,btn){document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(id==='dashboard')renderDashboard();if(id==='staff')renderStaff()}
+function badge(s){let cl=s==='New'?'new':s==='Assigned'?'assigned':s==='In Progress'?'progress':s==='Resolved'?'resolved':'overdue';return '<span class="badge '+cl+'">'+s+'</span>'}
+function renderDashboard(){let type=document.getElementById('filterType').value,ward=document.getElementById('filterWard').value,status=document.getElementById('filterStatus').value;let filtered=complaints.filter(c=>(type==='All'||c.type===type)&&(ward==='All'||c.ward===ward)&&(status==='All'||c.status===status));let total=complaints.length,sl=complaints.filter(c=>c.type==='Street Light').length,sa=complaints.filter(c=>c.type==='Sanitation').length,newc=complaints.filter(c=>c.status==='New').length,active=complaints.filter(c=>c.status==='Assigned'||c.status==='In Progress').length,res=complaints.filter(c=>c.status==='Resolved').length,over=complaints.filter(c=>c.status==='Overdue').length;document.getElementById('stats').innerHTML=[['Total',total],['Street Light',sl],['Sanitation',sa],['In Progress',active],['Overdue',over]].map(x=>'<div class="card"><div class="muted">'+x[0]+'</div><div class="num">'+x[1]+'</div></div>').join('');document.getElementById('complaintRows').innerHTML=filtered.map(c=>'<tr><td><b>'+c.id+'</b></td><td>'+c.type+'</td><td>'+c.ward+'</td><td>'+c.name+'</td><td>'+badge(c.status)+'</td><td>'+c.deadline+'</td><td><button class="secondary" onclick="viewComplaint(\''+c.id+'\')">View</button></td></tr>').join('')||'<tr><td colspan="7">No complaints found.</td></tr>';let rows='';for(let i=1;i<=18;i++){let w=String(i).padStart(2,'0'),a=complaints.filter(c=>c.ward===w),p=a.filter(c=>c.status!=='Resolved').length;rows+='<tr><td>'+w+'</td><td>'+a.length+'</td><td>'+a.filter(c=>c.type==='Street Light').length+'</td><td>'+a.filter(c=>c.type==='Sanitation').length+'</td><td>'+p+'</td><td>'+a.filter(c=>c.status==='Resolved').length+'</td><td>'+a.filter(c=>c.status==='Overdue').length+'</td></tr>'}document.getElementById('wardRows').innerHTML=rows}
+function viewComplaint(id){selectedId=id;let c=complaints.find(x=>x.id===id),p=document.getElementById('detailPanel');p.classList.remove('hidden');p.innerHTML='<div class="topline"><h2>'+c.id+'</h2>'+badge(c.status)+'</div><div class="grid2"><div><b>Type</b><p>'+c.type+'</p><b>Complainant</b><p>'+c.name+' · '+c.mobile+'</p><b>Ward</b><p>'+c.ward+'</p></div><div><b>Problem</b><p>'+c.desc+'</p><b>Created</b><p>'+c.created+'</p></div></div><hr><h3>EO Assignment</h3><div class="row"><div class="field"><label>Assign Staff</label><select id="assignStaff"><option>Rakesh Kumar</option><option>Suresh</option><option>Mohan</option><option>Vijay</option></select></div><div class="field"><label>Deadline</label><input id="deadline" type="date" value="2026-09-25"></div></div><div class="actions"><button class="primary" onclick="assignComplaint()">Assign & Generate Receipt</button><button class="secondary" onclick="closeDetail()">Close</button></div><div class="notice" style="margin-top:15px"><b>Progress:</b> Complaint Registered → '+(c.status==='New'?'Awaiting EO Assignment':c.status==='Assigned'?'Assigned to '+c.staff:'Work in Progress / Verification')+'</div>'}
+function assignComplaint(){let c=complaints.find(x=>x.id===selectedId);c.status='Assigned';c.staff=document.getElementById('assignStaff').value;let d=document.getElementById('deadline').value.split('-').reverse().join('/');c.deadline=d;renderDashboard();viewComplaint(c.id);alert('Assignment saved. Use “Assignment Receipt / PDF” to print/save the official receipt.')}
+function closeDetail(){document.getElementById('detailPanel').classList.add('hidden')}
+function printAssignment(){let c=complaints.find(x=>x.id===selectedId)||complaints[0];let w=window.open('','_blank');w.document.write('<html><head><title>Assignment Receipt '+c.id+'</title><style>body{font-family:Arial;padding:45px;max-width:800px;margin:auto}h1{text-align:center}h2{text-align:center;border-bottom:1px solid #222;padding-bottom:12px}table{width:100%;border-collapse:collapse;margin-top:20px}td{border:1px solid #aaa;padding:12px}.sig{text-align:right;margin-top:70px}</style></head><body><h1>Nagar Panchayat Anandnagar</h1><h2>Complaint Assignment & Disposal Order<br>शिकायत निस्तारण हेतु कार्य आवंटन पत्र</h2><p><b>Complaint ID:</b> '+c.id+'</p><table><tr><td><b>Type / प्रकार</b></td><td>'+c.type+'</td></tr><tr><td><b>Complainant / शिकायतकर्ता</b></td><td>'+c.name+'</td></tr><tr><td><b>Mobile / मोबाइल</b></td><td>'+c.mobile+'</td></tr><tr><td><b>Ward / वार्ड</b></td><td>'+c.ward+'</td></tr><tr><td><b>Problem / समस्या</b></td><td>'+c.desc+'</td></tr><tr><td><b>Assigned Staff / कर्मचारी</b></td><td>'+c.staff+'</td></tr><tr><td><b>Deadline / अंतिम तिथि</b></td><td>'+c.deadline+'</td></tr></table><p style="margin-top:30px">The assigned staff shall dispose of the complaint within the prescribed deadline and submit necessary completion evidence on the portal.<br>निर्धारित समय सीमा में शिकायत का निस्तारण कर आवश्यक प्रमाण पोर्टल पर अपलोड किया जाए।</p><div class="sig"><b>Executive Officer / अधिशासी अधिकारी</b><br>Nagar Panchayat Anandnagar</div><script>window.print()<\/script></body></html>');w.document.close()}
+function renderStaff(){let a=complaints.filter(c=>c.staff);document.getElementById('staffRows').innerHTML=a.map(c=>'<tr><td>'+c.id+'</td><td>'+c.type+'</td><td>'+c.ward+'</td><td>'+c.desc+'</td><td>'+c.deadline+'</td><td>'+badge(c.status)+'</td><td><button class="secondary" onclick="staffUpdate(\''+c.id+'\')">Update</button></td></tr>').join('')||'<tr><td colspan="7">No assigned complaints.</td></tr>'}
+function staffUpdate(id){let c=complaints.find(x=>x.id===id);let action=prompt('Enter update: START / RESOLVE / REOPEN');if(!action)return;action=action.toUpperCase();if(action==='START')c.status='In Progress';else if(action==='RESOLVE')c.status='Resolved';else if(action==='REOPEN')c.status='Overdue';renderStaff();renderDashboard()}
+initFilters();renderDashboard();renderStaff();
+</script>
+</body>
+</html>
